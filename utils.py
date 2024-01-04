@@ -1,17 +1,15 @@
-import replicate
 import time
 
-import requests
-import torch
 from huggingface_hub import InferenceClient
 
 # Initialize debounce variables
 last_call_time = 0
 debounce_interval = 2  # Set the debounce interval (in seconds) to your desired value
 
-# @ timer()
+
+# @timer()
 # @torch.inference_model()
-def debounce_replicate_run(llm, prompt, max_len, temperature, top_p, API_TOKEN_HEADERS):
+def debounce_huggingface_run(llm, prompt, max_len, temperature, top_p, API_TOKEN_HEADERS):
     global last_call_time
     print("last call time: ", last_call_time)
 
@@ -29,11 +27,7 @@ def debounce_replicate_run(llm, prompt, max_len, temperature, top_p, API_TOKEN_H
     # Update the last call time to the current time
     last_call_time = time.time()
 
-    # output = replicate.run(llm,
-    #                       input={"prompt": prompt + "Assistant: ", "max_length": max_len, "temperature": temperature,
-    #                              "top_p": top_p, "repetition_penalty": 1}, api_token=API_TOKEN)
-
-    headers = {"Authorization": f"Bearer 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",
+    headers = {"Authorization": f"Bearer " + API_TOKEN_HEADERS,
                "Content-Type": "application/json", }
 
     # Streaming Client
@@ -62,4 +56,3 @@ def debounce_replicate_run(llm, prompt, max_len, temperature, top_p, API_TOKEN_H
         # yield the generated token
         # return r.token.text
         yield r.token.text
-

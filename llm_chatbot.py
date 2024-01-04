@@ -3,17 +3,14 @@ import os
 
 from dotenv import load_dotenv
 
-from utils import debounce_replicate_run
-
-# External libraries
-import replicate
+from utils import debounce_huggingface_run
 
 # Load environment variables from .env file
 load_dotenv()
 
 # Set initial page configuration
 st.set_page_config(
-    page_title="LLaMA2Chat",
+    page_title="LLMChat",
     page_icon=":volleyball:",
     layout="wide"
 )
@@ -22,20 +19,23 @@ st.set_page_config(
 API_TOKEN_HEADERS = os.environ.get('API_TOKEN_HEADERS', default='')
 
 # Define model endpoints as independent variables
-LLaMA2_7B_ENDPOINT = os.environ.get('MODEL_ENDPOINT70B', default='')
-LLaMA2_13B_ENDPOINT = os.environ.get('MODEL_ENDPOINT70B', default='')
-LLaMA2_70B_ENDPOINT = os.environ.get('MODEL_ENDPOINT70B', default='')
+LLaMA2_7B_ENDPOINT = os.environ.get('LLAMA_7B_MODEL_ENDPOINT', default='')
+LLaMA2_13B_ENDPOINT = os.environ.get('LLAMA_13B_MODEL_ENDPOINT', default='')
+LLaMA2_70B_ENDPOINT = os.environ.get('LLAMA_70B_MODEL_ENDPOINT', default='')
+MISTRAL_7B_ENDPOINT = os.environ.get('MISTRAL_7B_MODEL_ENDPOINT', default='')
+STABLE_BELUGA_7B_ENDPOINT = os.environ.get('STABLE_BELUGA_7B_MODEL_ENDPOINT', default='')
+
 
 PRE_PROMPT = "You are a helpful assistant. You do not respond as 'User' or pretend to be 'User'. You only respond " \
              "once as Assistant."
-
-import streamlit as st
 
 # Constants
 LLaMA2_MODELS = {
     'LLaMA2-7B': LLaMA2_7B_ENDPOINT,
     'LLaMA2-13B': LLaMA2_13B_ENDPOINT,
     'LLaMA2-70B': LLaMA2_70B_ENDPOINT,
+    'Mistral-7B': MISTRAL_7B_ENDPOINT,
+    'StableBeluga-7B': STABLE_BELUGA_7B_ENDPOINT
 }
 
 # Session State Variables
@@ -47,7 +47,7 @@ DEFAULT_PRE_PROMPT = PRE_PROMPT
 
 def setup_session_state():
     st.session_state.setdefault('chat_dialogue', [])
-    selected_model = st.sidebar.selectbox('Choose a LLaMA2 model:', list(LLaMA2_MODELS.keys()), key='model')
+    selected_model = st.sidebar.selectbox('Choose a model:', list(LLaMA2_MODELS.keys()), key='model')
     st.session_state.setdefault('llm', LLaMA2_MODELS.get(selected_model, LLaMA2_70B_ENDPOINT))
     st.session_state.setdefault('temperature', DEFAULT_TEMPERATURE)
     st.session_state.setdefault('top_p', DEFAULT_TOP_P)
@@ -56,7 +56,7 @@ def setup_session_state():
 
 
 def render_sidebar():
-    st.sidebar.header("LLaMA2 Chatbot")
+    st.sidebar.header("LLM Chatbot")
     st.session_state['temperature'] = st.sidebar.slider('Temperature:', min_value=0.01, max_value=5.0,
                                                         value=DEFAULT_TEMPERATURE, step=0.01)
     st.session_state['top_p'] = st.sidebar.slider('Top P:', min_value=0.01, max_value=1.0, value=DEFAULT_TOP_P,
@@ -95,7 +95,7 @@ def generate_assistant_response():
         speaker = "User" if dict_message["role"] == "user" else "Assistant"
         string_dialogue += f"{speaker}: {dict_message['content']}\n\n"
 
-    output = debounce_replicate_run(
+    output = debounce_huggingface_run(
         st.session_state['llm'],
         string_dialogue + "Assistant: ",
         st.session_state['max_seq_len'],
