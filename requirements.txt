@@ -1,0 +1,59 @@
+line-profiler
+keras_tuner
+# transformers==4.30
+scikit-optimize
+imblearn
+Turkish-Deasciifier @ git+https://$hamxea:$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@github.com/emres/turkish-deasciifier.git
+unicode_tr
+llama-index
+paramiko
+peft @ git+https://$hamxea:$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@github.com/huggingface/peft@v0.4.0
+# typing_extensions @ git+https://$hamxea:$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@github.com/python/typing_extensions@4.7.1
+bitsandbytes
+transformers
+trl
+torch
+torchvision
+torchaudio
+loguru
+typing-extensions
+huggingface-hub
+numpy
+pandas
+apikey
+# scikit-learn==1.0
+# scipy==1.7.1
+xgboost
+matplotlib
+seaborn
+lightgbm
+catboost
+# imbalanced-learn==0.8.1
+pingouin
+kmodes
+keras
+tensorflow
+# keras-tuner==1.0.4
+lime
+shap
+python-dotenv
+# loguru
+hdbscan
+# typing-extensions==3.7.4.3
+category-encoders
+factor_analyzer
+# scikit-optimize==0.9.0
+pydantic
+line_profiler
+# unicode_tr==0.6.1
+nltk
+tqdm
+pyspark
+findspark
+pymongo
+# boto3==1.28.44
+boto3
+accelerate
+#pytorch==1.13.1
+#torchvision==0.14.1
+#torchaudio==0.13.1
