@@ -79,7 +79,7 @@ def render_chat_history():
 
 
 def handle_user_input():
-    user_input = st.chat_input("Type your question here to talk to LLaMA2")
+    user_input = st.chat_input("Type your question here to talk to the LLM:")
     if user_input:
         st.session_state.chat_dialogue.append({"role": "user", "content": user_input})
         with st.chat_message("user"):

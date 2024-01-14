@@ -40,8 +40,15 @@ def debounce_huggingface_run(llm, prompt, max_len, temperature, top_p, API_TOKEN
         top_p=top_p,  # 0.9,
         temperature=temperature,  # 0.2,
         repetition_penalty=1.02,
-        stop_sequences=["User:", "\n User:", "\nUser:", "</s>"],
+        stop_sequences=["User:", "\n User:</s>", "</s>\nUser:", "</s>"],
     )
+
+    Role="""
+    You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe.  Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content.
+    If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.
+    """
+
+    prompt=f"<s>[INST]<<SYS>>{Role}<</SYS>>{prompt}[/INST]"
 
     stream = client.text_generation(prompt, stream=True, details=True, **gen_kwargs)
 
