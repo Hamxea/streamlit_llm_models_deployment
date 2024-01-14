@@ -8,3 +8,4 @@ models
 Datasets
 vectorstore_db
 /Activity_Finetune/vectorstore_db/
+/__pycache__
