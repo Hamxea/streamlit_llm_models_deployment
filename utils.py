@@ -2,9 +2,17 @@ import time
 
 from huggingface_hub import InferenceClient
 
+from implementing_rag.rag_chromadb_engine import RagChromaDbEngine
+
 # Initialize debounce variables
 last_call_time = 0
 debounce_interval = 2  # Set the debounce interval (in seconds) to your desired value
+rag_chromadb_engine = RagChromaDbEngine()
+
+
+def rag_chromadb_engine(query, n_results=1):
+    context = rag_chromadb_engine.generate_context(query=query, n_results=n_results)
+    return context
 
 
 # @timer()
@@ -30,36 +38,23 @@ def debounce_huggingface_run(llm, prompt, max_len, temperature, top_p, API_TOKEN
     headers = {"Authorization": f"Bearer " + API_TOKEN_HEADERS,
                "Content-Type": "application/json", }
 
-    # Streaming Client
-    client = InferenceClient(llm, token='Bearer ' + API_TOKEN_HEADERS, headers=headers)
+    context = rag_chromadb_engine.generate_context(query=prompt, n_results=1)
 
-    # generation parameter
-    gen_kwargs = dict(
-        max_new_tokens=max_len,  # 512,
-        top_k=30,
-        top_p=top_p,  # 0.9,
-        temperature=temperature,  # 0.2,
-        repetition_penalty=1.02,
-        stop_sequences=["User:", "\n User:</s>", "</s>\nUser:", "</s>"],
-    )
-
-    Role="""
-    You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe.  Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content.
-    If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.
+    system_prompt = """\
+    You are a helpful AI assistant that can answer questions on activity for cerg. Answer based on the context provided. If you cannot find the correct answer, say I don't know. Be concise and just include the response.
     """
 
-    prompt=f"<s>[INST]<<SYS>>{Role}<</SYS>>{prompt}[/INST]"
+    user_prompt = f"""
+                    Based on the context:
+                    {context}
+                    Answer the below query:
+                    {prompt}
+                """
 
-    stream = client.text_generation(prompt, stream=True, details=True, **gen_kwargs)
+    response = rag_chromadb_engine.chat_completion(url=llm, system_prompt=system_prompt, user_prompt=user_prompt, length=max_len)
 
-    # yield each generated token
-    for r in stream:
-        # skip special tokens
-        if r.token.special:
-            continue
-        # stop if we encounter a stop sequence
-        if r.token.text in gen_kwargs["stop_sequences"]:
-            break
-        # yield the generated token
-        # return r.token.text
-        yield r.token.text
+    return response
+
+
+
+
