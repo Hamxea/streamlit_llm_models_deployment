@@ -26,8 +26,15 @@ MISTRAL_7B_ENDPOINT = os.environ.get('MISTRAL_7B_MODEL_ENDPOINT', default='')
 STABLE_BELUGA_7B_ENDPOINT = os.environ.get('STABLE_BELUGA_7B_MODEL_ENDPOINT', default='')
 
 
-PRE_PROMPT = "You are a helpful assistant. You do not respond as 'User' or pretend to be 'User'. You only respond " \
-             "once as Assistant."
+PRE_PROMPT = "You are a helpful AI assistant that can answer questions base on Cardiac Exercise Research Group of NTNU." \
+             "Answer based on the context provided. " \
+             "If you cannot find the correct answer, say I don't know. Be concise and just include the response."
+
+            #"You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, " \
+            # "while being safe.  Your answers should not include any harmful, unethical, racist, sexist, " \
+             #"toxic, dangerous, or illegal content.If a question does not make any sense, or is not factually coherent," \
+             #" explain why instead of answering something not correct. If you don't know the answer to a question, " \
+             #"please don't share false information. "
 
 # Constants
 LLaMA2_MODELS = {

@@ -7,12 +7,6 @@ from implementing_rag.rag_chromadb_engine import RagChromaDbEngine
 # Initialize debounce variables
 last_call_time = 0
 debounce_interval = 2  # Set the debounce interval (in seconds) to your desired value
-rag_chromadb_engine = RagChromaDbEngine()
-
-
-def rag_chromadb_engine(query, n_results=1):
-    context = rag_chromadb_engine.generate_context(query=query, n_results=n_results)
-    return context
 
 
 # @timer()
@@ -38,23 +32,16 @@ def debounce_huggingface_run(llm, prompt, max_len, temperature, top_p, API_TOKEN
     headers = {"Authorization": f"Bearer " + API_TOKEN_HEADERS,
                "Content-Type": "application/json", }
 
-    context = rag_chromadb_engine.generate_context(query=prompt, n_results=1)
+    # Streaming Client # token = 'Bearer ' + API_TOKEN_HEADERS
+    huggingface_client = InferenceClient(model=llm, token=False, headers=headers)
 
-    system_prompt = """\
-    You are a helpful AI assistant that can answer questions on activity for cerg. Answer based on the context provided. If you cannot find the correct answer, say I don't know. Be concise and just include the response.
-    """
+    rag_chromadb_engine = RagChromaDbEngine()
 
-    user_prompt = f"""
-                    Based on the context:
-                    {context}
-                    Answer the below query:
-                    {prompt}
-                """
+    context = rag_chromadb_engine.generate_context(query=prompt, n_results=3)
 
-    response = rag_chromadb_engine.chat_completion(url=llm, system_prompt=system_prompt, user_prompt=user_prompt, length=max_len)
+    user_prompt = f"<s>[INST]<<SYS>>{context}<</SYS>>{prompt}[/INST]"
+
+    response = rag_chromadb_engine.chat_completion(huggingface_client=huggingface_client, user_prompt=user_prompt,
+                                                   top_p=top_p, temperature=temperature, max_len=max_len)
 
     return response
-
-
-
-

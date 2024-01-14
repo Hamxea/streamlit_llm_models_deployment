@@ -22,15 +22,31 @@ class RagChromaDbEngine:
         res = "\n".join(str(item) for item in result['documents'][0])
         return res
 
-    def chat_completion(self, url, system_prompt, user_prompt, length=1000):
-        final_prompt = f"""<s>[INST]<<SYS>>
-            {system_prompt}
-        <</SYS>>
-            {user_prompt} 
-        [/INST]"""
-        huggingface_client = InferenceClient(model=url)
-        return huggingface_client.text_generation(prompt=final_prompt, max_new_tokens=length).strip()
+    def chat_completion(self, huggingface_client, user_prompt, top_p, temperature, max_len=512):
+
+        # generation parameter
+        gen_kwargs = dict(
+            max_new_tokens=max_len,  # 512,
+            top_k=30,
+            top_p=top_p,  # 0.9,
+            temperature=temperature,  # 0.2,
+            repetition_penalty=1.02,
+            stop_sequences=["User:", "\n User:</s>", "</s>\nUser:", "</s>"],
+        )
+
+        stream = huggingface_client.text_generation(prompt=user_prompt, stream=True, details=True, **gen_kwargs)
+
+        # yield each generated token
+        for r in stream:
+            # skip special tokens
+            if r.token.special:
+                continue
+            # stop if we encounter a stop sequence
+            if r.token.text in gen_kwargs["stop_sequences"]:
+                break
+            # yield the generated token
+            # return r.token.text
+            yield r.token.text
 
     def save_db(self):
         return
-
